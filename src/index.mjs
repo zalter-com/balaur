@@ -306,11 +306,6 @@ Please use stop & start or restart.`);
     }
 
     if (cluster.isWorker) {
-      const originalConsole = { ...global.console };
-      ['log', 'warn', 'info', 'error'].forEach((fnName) =>
-        global.console[fnName] = (...args) =>
-          originalConsole[fnName](`Worker ${cluster.worker.process.pid}:\t`, ...args)
-      );
       console.info('Cluster worker sequence starting.');
       const result = this.#daemonizedFunction();
 
@@ -324,7 +319,8 @@ Please use stop & start or restart.`);
           .catch((err) => {
             console.error(
               `Daemon start failed on cluster worker (PID ${cluster.worker.process.pid}).`,
-              err);
+              err
+            );
           });
       }
     }
