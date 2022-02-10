@@ -1,6 +1,6 @@
 {
   "name": "balaur",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Zalter",
   "description": "",
   "keywords": [],
@@ -13,6 +13,6 @@
     "url": "git@github.com"
   },
   "dependencies": {
-    "yargs": "17.0.1"
+    "yargs": "17.3.1"
   }
 }

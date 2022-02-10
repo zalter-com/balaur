@@ -31,11 +31,14 @@ if (fsExistsSync(CONFIG_FILE_NAME)) {
   }
 }
 
-const importFile = `file://${process.cwd()}/${config?.main || 'index.mjs'}`;
-const serveFunction = (await import(importFile)).default;
-
 try {
-  const balaur = new Balaur(serveFunction, config);
+  const balaur = new Balaur(
+    async () => {
+      const importFile = `file://${process.cwd()}/${config?.main || 'index.mjs'}`;
+      return await import(importFile);
+    },
+    config
+  );
 
   balaur.processArgs();
 } catch (err) {
