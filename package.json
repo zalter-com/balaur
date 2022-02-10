@@ -1,6 +1,6 @@
 {
   "name": "balaur",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "author": "Zalter",
   "description": "A daemonizing manager for Node.js applications",
   "keywords": ["daemon", "nodejs", "application", "nix"],
