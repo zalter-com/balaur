@@ -1,11 +1,14 @@
-import childProcess from 'child_process';
-import cluster from 'cluster';
-import fs from 'fs';
-import os, { cpus } from 'os';
+import childProcess from 'node:child_process';
+import cluster from 'node:cluster';
+import fs from 'node:fs';
+import os, { cpus } from 'node:os';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-let console = global.console;
+const packageJson = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url)));
+
+let console = globalThis.console;
+
 const noop = () => {};
 
 /**
@@ -76,10 +79,12 @@ export default class Balaur {
       console = {
         info: noop,
         log: noop,
-        warn: global.console.warn,
-        error: global.console.error
+        warn: globalThis.console.warn,
+        error: globalThis.console.error
       };
     }
+
+    console.info('Daemon received start command.');
 
     if (process.pid === this.#pid) {
       this.#startSequence();
@@ -87,7 +92,7 @@ export default class Balaur {
       if (!this.#processExists()) {
         this.#startDaemon(yargs.inspect);
       } else {
-        if (cluster.isMaster) {
+        if (cluster.isPrimary) {
           console.error(`Daemon already started, unable to start.
 Please use stop & start or restart.`);
           process.exit(Balaur.EXIT_CODE_CANNOT_EXECUTE);
@@ -105,6 +110,8 @@ Please use stop & start or restart.`);
    * @param {Object<string, *>} yargs
    */
   #restart = (yargs) => {
+    console.info('Daemon received restart command.');
+
     if (!this.#processExists()) {
       console.error('Daemon not started, unable to restart.');
       process.exit(Balaur.EXIT_CODE_CANNOT_EXECUTE);
@@ -125,6 +132,8 @@ Please use stop & start or restart.`);
    * @param {Object<string, *>} yargs
    */
   #stop = (yargs) => {
+    console.info('Daemon received stop command.');
+
     if (!this.#processExists()) {
       console.error('Daemon not started, unable to stop.');
       process.exit(Balaur.EXIT_CODE_CANNOT_EXECUTE);
@@ -148,7 +157,7 @@ Please use stop & start or restart.`);
    */
   constructor(daemonizedFunction, config) {
     this.#daemonizedFunction = daemonizedFunction;
-    this.#workers = config?.workers || (process.env.NODE_ENV === 'development' ? 1 : cpus().length);
+    this.#workers = config?.workers || 1;
     this.#pidfilePath = config?.pidfilePath || 'pidfile.pid';
     this.#stdOutPath = config?.stdOutPath || 'out.log';
     this.#stdErrPath = config?.stdErrPath || 'err.log';
@@ -217,7 +226,7 @@ Please use stop & start or restart.`);
    * Forker part of the daemonized starting function.
    */
   #startSequence() {
-    if (cluster.isMaster) {
+    if (cluster.isPrimary) {
       console.info('Cluster master sequence starting.');
 
       for (let i = 0; i < this.#workers; i++) {
@@ -334,7 +343,7 @@ Please use stop & start or restart.`);
     return yargs(hideBin(process.argv))
       .usage('Application daemon\n\nUsage: $0 [command]')
       .help('help').alias('help', 'h')
-      .version('version', '1.0.0').alias('version', 'V')
+      .version('version', packageJson.version).alias('version', 'V')
       .count('verbose').alias('v', 'verbose')
       .demandCommand(1)
       .command('start', 'Start daemon', (yargs) => {

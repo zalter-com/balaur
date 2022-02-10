@@ -2,15 +2,18 @@
   "name": "balaur",
   "version": "0.1.3",
   "author": "Zalter",
-  "description": "",
-  "keywords": [],
+  "description": "A daemonizing manager for Node.js applications",
+  "keywords": ["daemon", "nodejs", "application", "nix"],
   "main": "src/index.mjs",
   "bin": {
     "balaur": "bin/balaur.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com"
+    "url": "https://github.com/zalter-com/balaur"
+  },
+  "engines": {
+    "node": ">16.0.0"
   },
   "dependencies": {
     "yargs": "17.3.1"

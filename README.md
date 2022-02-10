@@ -20,19 +20,19 @@ npm install balaur
 
 ### Configuration
 
-Create a file in your project named `balaur.config.json`
+Create a file in your project named `balaur.config.mjs`
 
 Alternatively you can export an environment variable called `BALAUR_CONFIG_FILE` with the path.
 
 In this file you can specify the following values:
 
-```json
-{
-  "main": "index.mjs",
-  "workers": 1,
-  "pidfilePath": "pidfile.pid",
-  "stdOutPath": "out.log",
-  "stdErrPath": "err.log"
+```js
+export default {
+  main: "index.mjs",
+  workers: 1,
+  pidfilePath: "pidfile.pid",
+  stdOutPath: "out.log",
+  stdErrPath: "err.log"
 }
 ```
 

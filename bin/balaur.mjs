@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import { cpus } from 'os';
+import fs from 'node:fs';
+import path from 'node:path';
 import Balaur from '../src/index.mjs';
 
 const fsExistsSync = (path) => {
@@ -15,17 +15,20 @@ const fsExistsSync = (path) => {
   return exists;
 };
 
-const CONFIG_FILE_NAME = process.env.BALAUR_CONFIG_FILE || 'balaur.config.json';
+const CONFIG_FILE_NAME = process.env.BALAUR_CONFIG_FILE || 'balaur.config.mjs';
 
 let config = null;
 
 if (fsExistsSync(CONFIG_FILE_NAME)) {
   try {
-    const data = fs.readFileSync(
-      CONFIG_FILE_NAME,
-      { encoding: 'utf-8' }
-    );
-    config = JSON.parse(data);
+    const configFilePath = path.resolve(process.cwd(), CONFIG_FILE_NAME);
+    const configModule = await import(configFilePath);
+
+    if (!configModule.default) {
+      console.warn('Invalid Balaur config file, using defaults.');
+    }
+
+    config = configModule.default;
   } catch {
     console.warn('Unable to read Balaur config file, using defaults.');
   }
@@ -34,8 +37,8 @@ if (fsExistsSync(CONFIG_FILE_NAME)) {
 try {
   const balaur = new Balaur(
     async () => {
-      const importFile = `file://${process.cwd()}/${config?.main || 'index.mjs'}`;
-      return await import(importFile);
+      const mainPath = path.resolve(process.cwd(), config?.main);
+      return await import(mainPath);
     },
     config
   );
